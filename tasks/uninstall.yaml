@@ -46,32 +46,36 @@
     - name: Remove Tailscale package Fedora
       become: true
       ansible.builtin.dnf:
-      name: "tailscale"
-      state: absent
+        name: "tailscale"
+        state: absent
       when: ansible_distribution == 'Fedora' or (ansible_distribution == 'Amazon' and ansible_distribution_major_version | int >= 2023)
+
     - name: Remove tailscale package Debian family
       become: true
       ansible.builtin.apt:
-      name: "tailscale"
-      state: absent
+        name: "tailscale"
+        state: absent
       when: ansible_distribution in ['Debian', 'Ubuntu', 'Pop!_OS', 'OSMC']
+
     - name: Remove Tailscale package Arch family
       become: true
       ansible.builtin.pacman:
-      name: "tailscale"
-      state: absent
+        name: "tailscale"
+        state: absent
       when: ansible_distribution == 'Archlinux'
+
     - name: Remove Tailscale package openSUSE family
       become: true
       ansible.builtin.zypper:
-      name: "tailscale"
-      state: absent
+        name: "tailscale"
+        state: absent
       when: ansible_distribution in ['openSUSE Leap', 'openSUSE Tumbleweed']
+
     - name: Remove Tailscale package CentOS family
       become: true
       ansible.builtin.yum:
-      name: "tailscale"
-      state: absent
+        name: "tailscale"
+        state: absent
       when: ansible_distribution in ['CentOS', 'RedHat', 'Rocky', 'AlmaLinux', 'OracleLinux']
 
     - name: Remove Tailscale data directory
@@ -86,6 +90,7 @@
         state: absent
       become: yes
   when: ansible_os_family != "Windows"
+
 - name: Remove device from tailnet
   uri:
     url: "https://api.tailscale.com/api/v2/device/{{ tailscale_device_id }}"
