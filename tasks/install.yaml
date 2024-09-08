@@ -36,19 +36,23 @@
 
 - name: Install Tailscale on Linux
   block:
-    - name: Download and run Tailscale installation script
-      ansible.builtin.shell: curl -fsSL https://tailscale.com/install.sh | sh
-      args:
-        warn: false
+    - name: Download Tailscale installation script
+      ansible.builtin.get_url:
+        url: https://tailscale.com/install.sh
+        dest: /tmp/tailscale_install.sh
+        mode: '0700'
       become: yes
 
-    - name: Enable and start Tailscale service
-      ansible.builtin.systemd:
-        name: tailscaled
-        state: started
-        enabled: yes
+    - name: Run Tailscale installation script
+      ansible.builtin.command: /tmp/tailscale_install.sh
       become: yes
 
+    - name: Remove Tailscale installation script
+      ansible.builtin.file:
+        path: /tmp/tailscale_install.sh
+        state: absent
+      become: yes
+      
     - name: Connect to Tailscale network
       ansible.builtin.command: tailscale up --authkey {{ tailscale_authkey }}
       args:
