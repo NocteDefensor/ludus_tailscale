@@ -72,9 +72,8 @@
         path: /tmp/tailscale_install.sh
         state: absent
       become: yes
-
     - name: Connect to Tailscale network
-      ansible.builtin.command: tailscale up --authkey {{ tailscale_authkey }}
+      ansible.builtin.command: tailscale up --auth-key {{ tailscale_authkey }}
       args:
         creates: /var/lib/tailscale/tailscaled.state
       become: yes
