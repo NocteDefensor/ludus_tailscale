@@ -6,8 +6,9 @@
   when: ansible_os_family is not defined
 - name: Set non-Tailscale IP to default IPv4
   when:
+    - ansible_os_family != "Windows" 
+    - ansible_default_ipv4.address is defined
     - ansible_default_ipv4.address is match('^10\\.')
-    - ansible_os_family != "Windows"
   set_fact:
     non_tailscale_ip: "{{ ansible_default_ipv4.address }}"
 - name: Update ansible_host to non-Tailscale IP
