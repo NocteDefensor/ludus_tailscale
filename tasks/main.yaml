@@ -4,6 +4,7 @@
 - name: Gather facts if needed
   ansible.builtin.setup:
   when: ansible_os_family is not defined
+
 - name: Set non-Tailscale IP to default IPv4
   when:
     - ansible_os_family != "Windows" 
@@ -11,12 +12,19 @@
     - ansible_default_ipv4.address is match('^10\\.')
   set_fact:
     non_tailscale_ip: "{{ ansible_default_ipv4.address }}"
+
 - name: Update ansible_host to non-Tailscale IP
   when:
     - non_tailscale_ip is defined
     - ansible_os_family != "Windows" 
   set_fact:
     ansible_host: "{{ non_tailscale_ip }}"
+
+- name: Print current ansible_host IP
+  when: ansible_host is defined
+  debug:
+    msg: "Current ansible_host IP: {{ ansible_host }}"
+
 - name: Include install tasks
   ansible.builtin.include_tasks: install.yaml
   when: tailscale_state | default('present') == 'present'
