@@ -1,0 +1,19 @@
+---
+# roles/tailscale_manage/tasks/main.yml
+
+- name: Gather facts if needed
+  ansible.builtin.setup:
+  when: ansible_os_family is not defined
+
+- name: Set Windows system drive fact
+  set_fact:
+    windows_system_drive: '{{ ansible_env.SystemDrive }}'
+  when: ansible_os_family == "Windows"
+
+- name: Include install tasks
+  ansible.builtin.include_tasks: install.yml
+  when: tailscale_state | default('present') == 'present'
+
+- name: Include uninstall tasks
+  ansible.builtin.include_tasks: uninstall.yml
+  when: tailscale_state | default('present') == 'absent'

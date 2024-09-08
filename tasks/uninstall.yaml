@@ -1,0 +1,110 @@
+# roles/tailscale_manage/tasks/uninstall.yml
+
+- name: Get device ID on Windows
+  win_shell: |
+    $status = & '{{ windows_system_drive }}\Program Files\Tailscale\tailscale.exe' status --json | ConvertFrom-Json
+    $status.Self.ID
+  register: tailscale_status_windows
+  ignore_errors: yes
+  when: ansible_os_family == 'Windows'
+
+- name: Get device ID on Linux
+  ansible.builtin.shell: |
+    tailscale status --json | python3 -c "import sys, json; print(json.load(sys.stdin)['Self']['ID'])"
+  register: tailscale_status_linux
+  ignore_errors: yes
+  when: ansible_os_family != 'Windows'
+
+- name: Set device ID fact
+  set_fact:
+    tailscale_device_id: "{{ tailscale_status_windows.stdout | default(tailscale_status_linux.stdout, true) }}"
+  when: tailscale_status_windows is success or tailscale_status_linux is success
+
+- name: Remove device from tailnet
+  uri:
+    url: "https://api.tailscale.com/api/v2/device/{{ tailscale_device_id }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tailscale_api_key }}"
+  delegate_to: localhost
+  when: tailscale_device_id is defined
+
+- name: Uninstall Tailscale on Windows
+  block:
+    - name: Disconnect from Tailscale network
+      win_command: '"{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale.exe" logout'
+      ignore_errors: yes
+
+    - name: Stop Tailscale service
+      win_service:
+        name: Tailscale
+        state: stopped
+
+    - name: Check if Tailscale MSI exists
+      win_stat:
+        path: '{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale-setup.msi'
+      register: tailscale_msi
+
+    - name: Download Tailscale MSI if not present
+      win_get_url:
+        url: https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi
+        dest: '{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale-setup.msi'
+      when: not tailscale_msi.stat.exists
+
+    - name: Uninstall Tailscale
+      win_package:
+        path: '{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale-setup.msi'
+        state: absent
+
+    - name: Remove Tailscale directory
+      win_file:
+        path: '{{ windows_system_drive }}\\Program Files\\Tailscale'
+        state: absent
+
+    - name: Remove Tailscale data directory
+      win_file:
+        path: '{{ windows_system_drive }}\\ProgramData\\Tailscale'
+        state: absent
+  when: ansible_os_family == "Windows"
+
+- name: Uninstall Tailscale on Linux
+  block:
+    - name: Disconnect from Tailscale network
+      ansible.builtin.command: tailscale logout
+      ignore_errors: yes
+      become: yes
+
+    - name: Stop and disable Tailscale service (systemd)
+      ansible.builtin.systemd:
+        name: tailscaled
+        state: stopped
+        enabled: no
+      become: yes
+      when: ansible_service_mgr == 'systemd'
+
+    - name: Stop Tailscale service (SysV init)
+      ansible.builtin.service:
+        name: tailscaled
+        state: stopped
+        enabled: no
+      become: yes
+      when: ansible_service_mgr != 'systemd'
+
+    - name: Uninstall Tailscale package
+      ansible.builtin.package:
+        name: tailscale
+        state: absent
+      become: yes
+
+    - name: Remove Tailscale data directory
+      ansible.builtin.file:
+        path: /var/lib/tailscale
+        state: absent
+      become: yes
+
+    - name: Remove Tailscale configuration
+      ansible.builtin.file:
+        path: /etc/tailscale
+        state: absent
+      become: yes
+  when: ansible_os_family != "Windows"
