@@ -18,7 +18,7 @@ ludus ansible role add -d ./ludus_tailscale
 ludus range deploy
 ```
 - or deploy just tailscale role
-Useful for deploying tailscale to existing vm's or removing tailscale from existing VM's. Hint can be used with "absent" as the tailscale state variable value to purge tailscale prior to destroying range.
+  - Useful for deploying tailscale to existing vm's or removing tailscale from existing VM's. Hint can be used with "absent" as the tailscale state variable value to purge tailscale prior to destroying range.
 ```
 range deploy -t user-defined-roles --only-roles ludus_tailscale
 ```
