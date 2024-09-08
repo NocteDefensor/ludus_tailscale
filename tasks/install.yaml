@@ -36,29 +36,13 @@
 
 - name: Install Tailscale on Linux
   block:
-    - name: Download Tailscale installation script (with SSL verification)
-      ansible.builtin.get_url:
-        url: https://tailscale.com/install.sh
-        dest: /tmp/tailscale_install.sh
-        mode: '0700'
-      become: yes
-      register: download_result
-      ignore_errors: yes
-
-    - name: Download Tailscale installation script (without SSL verification)
+    - name: Download Tailscale installation script
       ansible.builtin.get_url:
         url: https://tailscale.com/install.sh
         dest: /tmp/tailscale_install.sh
         mode: '0700'
         validate_certs: no
       become: yes
-      when: download_result is failed
-      ignore_errors: yes
-
-    - name: Fail if both download attempts failed
-      ansible.builtin.fail:
-        msg: "Failed to download Tailscale installation script"
-      when: download_result is failed and ansible_failed_result is failed
 
     - name: Run Tailscale installation script
       ansible.builtin.command: /tmp/tailscale_install.sh
