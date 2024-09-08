@@ -36,6 +36,12 @@
 
 - name: Install Tailscale on Linux
   block:
+    - name: Ensure ca-certificates is installed
+      ansible.builtin.package:
+        name: ca-certificates
+        state: present
+      become: yes
+
     - name: Check if wget or curl is installed
       ansible.builtin.shell: which wget || which curl
       register: download_tool
@@ -65,13 +71,6 @@
       ansible.builtin.file:
         path: /tmp/tailscale_install.sh
         state: absent
-      become: yes
-
-    - name: Enable and start Tailscale service
-      ansible.builtin.systemd:
-        name: tailscaled
-        state: started
-        enabled: yes
       become: yes
 
     - name: Connect to Tailscale network
