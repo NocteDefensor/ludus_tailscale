@@ -50,7 +50,3 @@
     - name: Display Tailscale connection result
       debug:
         msg: "{{ tailscale_status_win.stdout_lines if tailscale_status_win.rc == 0 else 'Tailscale connection failed. Error: ' + tailscale_status_win.stderr }}"
-
-    - name: Display Tailscale status
-      debug:
-        msg: "{{ tailscale_status_win.stdout_lines }}"
