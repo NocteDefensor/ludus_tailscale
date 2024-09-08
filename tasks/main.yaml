@@ -4,7 +4,15 @@
 - name: Gather facts if needed
   ansible.builtin.setup:
   when: ansible_os_family is not defined
-
+- name: Print all available facts
+  ansible.builtin.debug:
+    var: ansible_facts
+- name: Set VM IP Address
+  ansible.builtin.set_fact:
+    vm_ip_address: "10.{{ range_second_octet }}.{{ vlan }}.{{ ip_last_octet }}"
+- name: Print all available facts
+  ansible.builtin.debug:
+    var: ansible_facts
 - name: Include install tasks
   ansible.builtin.include_tasks: install.yaml
   when: tailscale_state | default('present') == 'present'
