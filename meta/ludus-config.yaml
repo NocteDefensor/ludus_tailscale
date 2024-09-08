@@ -1,0 +1,49 @@
+ludus:
+  # Create parent domain and domain controller first using ludus's primary-dc role
+  # Then Join machine to Tailscale network using ludus_tailscale role passing in the authkey and apikey
+  - vm_name: "{{ range_id }}-pdc01"
+    hostname: "pdc01"
+    template: win2016-server-x64-template
+    vlan: 20
+    ip_last_octet: 10
+    ram_gb: 8
+    cpus: 2
+    windows:
+      sysprep: true
+    domain:
+      fqdn: acme.com
+      role: primary-dc
+    roles:                  
+      - ludus_tailscale
+    role_vars:
+	    tailscale_state: present
+	    tailscale_authkey: "tskey-auth-<REDACTED_KEY>"
+	    tailscale_api_key: "tskey-api-<REDACTED_KEY>"
+# Create a linux machine in the same VLAN as the domain controller
+# Remove the machine from the Tailscale network using ludus_tailscale role
+  - vm_name: "{{ range_id }}-linux"
+    hostname: "{{ range_id }}-linux"
+    template: debian-12-x64-server-template
+    vlan: 20
+    ip_last_octet: 1
+    ram_gb: 12
+    cpus: 6
+    linux: true
+    testing:
+      snapshot: false
+      block_internet: false
+    roles:                  
+      - ludus_tailscale
+    role_vars:
+	    tailscale_state: absent
+	    tailscale_authkey: "tskey-auth-<REDACTED_KEY>"
+	    tailscale_api_key: "tskey-api-<REDACTED_KEY>"
+network:
+  inter_vlan_default: ACCEPT
+  rules:
+    - name: Allow all from 20
+      vlan_src: 20
+      vlan_dst: all
+      protocol: all
+      ports: all
+      action: ACCEPT
