@@ -1,0 +1,62 @@
+# roles/tailscale_manage/tasks/linux install.yaml
+- name: Install Tailscale on Linux
+  when: ansible_os_family != "Windows"
+  block:
+    - name: Ensure ca-certificates is installed
+      ansible.builtin.package:
+        name: ca-certificates
+        state: present
+      become: yes
+
+    - name: Check if wget or curl is installed
+      ansible.builtin.shell: which wget || which curl
+      register: download_tool
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Install wget if neither wget nor curl is available
+      ansible.builtin.package:
+        name: wget
+        state: present
+      when: download_tool.rc != 0
+      become: yes
+
+    - name: Download Tailscale installation script
+      ansible.builtin.get_url:
+        url: https://tailscale.com/install.sh
+        dest: /tmp/tailscale_install.sh
+        mode: '0700'
+        validate_certs: no
+      become: yes
+
+    - name: Run Tailscale installation script
+      ansible.builtin.command: /tmp/tailscale_install.sh
+      become: yes
+
+    - name: Remove Tailscale installation script
+      ansible.builtin.file:
+        path: /tmp/tailscale_install.sh
+        state: absent
+      become: yes
+
+    - name: Connect to Tailscale network
+      ansible.builtin.command: tailscale up --authkey {{ tailscale_authkey }}
+      register: tailscale_up_result
+      changed_when: tailscale_up_result.rc == 0
+      failed_when: false
+      become: yes
+
+    - name: Display Tailscale connection result
+      ansible.builtin.debug:
+        msg: "{{ 'Tailscale connected successfully.' if tailscale_up_result.rc == 0 else 'Tailscale connection failed. Error: ' + tailscale_up_result.stderr }}"
+
+    - name: Check Tailscale connection status
+      ansible.builtin.command: tailscale status
+      register: tailscale_status
+      changed_when: false
+      failed_when: false
+      become: yes
+
+    - name: Display Tailscale status
+      ansible.builtin.debug:
+        msg: "{{ tailscale_status.stdout_lines }}"

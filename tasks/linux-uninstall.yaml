@@ -1,0 +1,167 @@
+
+- name: Get device ID on Linux
+  when: ansible_os_family != 'Windows'
+  ansible.builtin.shell: |
+    tailscale status --json | python3 -c "import sys, json; print(json.load(sys.stdin)['Self']['ID'])"
+  register: tailscale_status_linux
+  ignore_errors: yes
+
+- name: Set device ID fact
+  when: ansible_os_family != 'Windows'
+  set_fact:
+    tailscale_device_id: "{{ default(tailscale_status_linux.stdout, true) }}"
+  when: tailscale_status_linux is success
+
+- name: Uninstall Tailscale on Linux
+  when: ansible_os_family != "Windows"
+  block:
+    - name: Remove Tailscale package Fedora
+      become: true
+      become_user: root
+      ansible.builtin.dnf:
+        name: "tailscale"
+        state: absent
+      timeout: 60
+      ignore_errors: yes
+      when: ansible_distribution == 'Fedora' or (ansible_distribution == 'Amazon' and ansible_distribution_major_version | int >= 2023)
+
+    - name: Check if Tailscale is still installed on Fedora
+      become: true
+      become_user: root
+      ansible.builtin.dnf:
+        name: "tailscale"
+        state: absent
+      register: tailscale_fedora_check
+      check_mode: true
+      when: ansible_distribution == 'Fedora' or (ansible_distribution == 'Amazon' and ansible_distribution_major_version | int >= 2023)
+
+    - name: Warn user if Tailscale is still installed on Fedora
+      ansible.builtin.debug:
+        msg: "Tailscale is still installed on Fedora. Please uninstall it manually."
+      when: tailscale_fedora_check is changed
+
+    - name: Remove tailscale package Debian family
+      become: true
+      become_user: root
+      ansible.builtin.apt:
+        name: "tailscale"
+        state: absent
+      timeout: 60
+      ignore_errors: yes
+      when: ansible_distribution in ['Debian', 'Ubuntu', 'Pop!_OS', 'OSMC']
+
+    - name: Check if Tailscale is still installed on Debian family
+      become: true
+      become_user: root
+      ansible.builtin.apt:
+        name: "tailscale"
+        state: absent
+      register: tailscale_debian_check
+      check_mode: true
+      when: ansible_distribution in ['Debian', 'Ubuntu', 'Pop!_OS', 'OSMC']
+
+    - name: Warn user if Tailscale is still installed on Debian family
+      ansible.builtin.debug:
+        msg: "Tailscale is still installed on Debian. Please uninstall it manually."
+      when: tailscale_debian_check is changed
+
+    - name: Remove Tailscale package Arch family
+      become: true
+      become_user: root
+      ansible.builtin.pacman:
+        name: "tailscale"
+        state: absent
+      timeout: 60
+      ignore_errors: yes
+      when: ansible_distribution == 'Archlinux'
+
+    - name: Check if Tailscale is still installed on Arch family
+      become: true
+      become_user: root
+      ansible.builtin.pacman:
+        name: "tailscale"
+        state: absent
+      register: tailscale_arch_check
+      check_mode: true
+      when: ansible_distribution == 'Archlinux'
+
+    - name: Warn user if Tailscale is still installed on Arch family
+      ansible.builtin.debug:
+        msg: "Tailscale is still installed on Archlinux. Please uninstall it manually."
+      when: tailscale_arch_check is changed
+
+    - name: Remove Tailscale package openSUSE family
+      become: true
+      become_user: root
+      ansible.builtin.zypper:
+        name: "tailscale"
+        state: absent
+      timeout: 60
+      ignore_errors: yes
+      when: ansible_distribution in ['openSUSE Leap', 'openSUSE Tumbleweed']
+
+    - name: Check if Tailscale is still installed on openSUSE family
+      become: true
+      become_user: root
+      ansible.builtin.zypper:
+        name: "tailscale"
+        state: absent
+      register: tailscale_suse_check
+      check_mode: true
+      when: ansible_distribution in ['openSUSE Leap', 'openSUSE Tumbleweed']
+
+    - name: Warn user if Tailscale is still installed on openSUSE family
+      ansible.builtin.debug:
+        msg: "Tailscale is still installed on openSUSE. Please uninstall it manually."
+      when: tailscale_suse_check is changed
+
+    - name: Remove Tailscale package CentOS family
+      become: true
+      become_user: root
+      ansible.builtin.yum:
+        name: "tailscale"
+        state: absent
+      timeout: 60
+      ignore_errors: yes
+      when: ansible_distribution in ['CentOS', 'RedHat', 'Rocky', 'AlmaLinux', 'OracleLinux']
+
+    - name: Check if Tailscale is still installed on CentOS family
+      become: true
+      become_user: root
+      ansible.builtin.yum:
+        name: "tailscale"
+        state: absent
+      register: tailscale_centos_check
+      check_mode: true
+      when: ansible_distribution in ['CentOS', 'RedHat', 'Rocky', 'AlmaLinux', 'OracleLinux']
+
+    - name: Warn user if Tailscale is still installed on CentOS family
+      ansible.builtin.debug:
+        msg: "Tailscale is still installed on CentOS. Please uninstall it manually."
+      when: tailscale_centos_check is changed
+
+    - name: Remove Tailscale data directory
+      ansible.builtin.file:
+        path: /var/lib/tailscale
+        state: absent
+      become: yes
+      become_user: root
+
+    - name: Remove Tailscale configuration
+      ansible.builtin.file:
+        path: /etc/tailscale
+        state: absent
+      become: yes
+      become_user: root
+- name: Remove device from tailnet
+  uri:
+    url: "https://api.tailscale.com/api/v2/device/{{ tailscale_device_id }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tailscale_api_key }}"
+  delegate_to: localhost
+  register: result
+
+- name: Debug the result
+  debug:
+    var: result

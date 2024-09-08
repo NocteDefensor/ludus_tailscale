@@ -1,0 +1,35 @@
+# roles/tailscale_manage/tasks/windows-install.yaml
+- name: Install Tailscale on Windows
+  when: ansible_os_family != "Windows"
+  block:
+    - name: Set Windows-specific variables
+      set_fact:
+        tailscale_msi_url: "https://pkgs.tailscale.com/stable/tailscale-setup-latest-{{ 'amd64' if is_64bit else 'x86' }}.msi"
+        program_files_dir: "{{ ansible_env.ProgramFiles if is_64bit else ansible_env.ProgramFiles(x86) | default(ansible_env.ProgramFiles) }}"
+
+    - name: Create Tailscale directory
+      win_file:
+        path: '{{ program_files_dir }}\\Tailscale'
+        state: directory
+
+    - name: Download Tailscale MSI
+      win_get_url:
+        url: "{{ tailscale_msi_url }}"
+        dest: '{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi'
+
+    - name: Install Tailscale
+      win_package:
+        path: '{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi'
+        state: present
+        arguments: /quiet TS_INSTALLDIR="{{ program_files_dir }}\\Tailscale"
+
+    - name: Ensure Tailscale service is running
+      win_service:
+        name: Tailscale
+        state: started
+        start_mode: auto
+
+    - name: Connect to Tailscale network
+      win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" up --auth-key {{ tailscale_authkey }}'
+      args:
+        creates: '{{ ansible_env.ProgramData }}\\Tailscale\\tailscaled.state'
