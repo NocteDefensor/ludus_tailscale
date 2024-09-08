@@ -1,7 +1,7 @@
 dependencies: []
 
 galaxy_info:
-  role_name: ludus_manage_tailscale
+  role_name: ludus_tailscale
   author: NocteDefensor
   description: An Ansible Role that provisions or removes a device from Tailscale.
   company: NocteDefensor
@@ -10,18 +10,34 @@ galaxy_info:
   platforms:
     - name: Windows
       versions:
-        - "all"
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Amazon
+      versions:
+        - 2023
     - name: Debian
       versions:
-        - "buster"
-        - "bullseye"
+        - all
     - name: Ubuntu
       versions:
-        - "focal"
-        - "bionic"
+        - all
+    - name: ArchLinux
+      versions:
+        - all
+    - name: opensuse
+      versions:
+        - all
+    - name: EL  # Enterprise Linux
+      versions:
+        - all
   galaxy_tags:
     - tailscale
+    - vpn
+    - networking
+    - security
 
 collections:
   - community.windows
-  - community.linux
+  - community.general
