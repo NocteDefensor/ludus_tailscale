@@ -36,6 +36,19 @@
 
 - name: Install Tailscale on Linux
   block:
+    - name: Check if wget or curl is installed
+      ansible.builtin.shell: which wget || which curl
+      register: download_tool
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Install wget if neither wget nor curl is available
+      ansible.builtin.package:
+        name: wget
+        state: present
+      when: download_tool.rc != 0
+      become: yes
+
     - name: Download Tailscale installation script
       ansible.builtin.get_url:
         url: https://tailscale.com/install.sh
@@ -52,6 +65,13 @@
       ansible.builtin.file:
         path: /tmp/tailscale_install.sh
         state: absent
+      become: yes
+
+    - name: Enable and start Tailscale service
+      ansible.builtin.systemd:
+        name: tailscaled
+        state: started
+        enabled: yes
       become: yes
 
     - name: Connect to Tailscale network
