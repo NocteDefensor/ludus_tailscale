@@ -35,3 +35,22 @@
       win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" up --auth-key {{ tailscale_authkey }}'
       args:
         creates: '{{ ansible_env.ProgramData }}\\Tailscale\\tailscaled.state'
+    - name: Check Tailscale connection status
+      win_shell: |
+        $status = & '{{ program_files_dir }}\Tailscale\tailscale.exe' status
+        if ($LASTEXITCODE -eq 0) {
+          Write-Output "Tailscale connected successfully."
+          $status
+        } else {
+          Write-Error "Tailscale connection failed."
+        }
+      register: tailscale_status_win
+      failed_when: false
+
+    - name: Display Tailscale connection result
+      debug:
+        msg: "{{ tailscale_status_win.stdout_lines if tailscale_status_win.rc == 0 else 'Tailscale connection failed. Error: ' + tailscale_status_win.stderr }}"
+
+    - name: Display Tailscale status
+      debug:
+        msg: "{{ tailscale_status_win.stdout_lines }}"
