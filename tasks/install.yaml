@@ -73,24 +73,25 @@
         state: absent
       become: yes
 
-- name: Connect to Tailscale network
-  ansible.builtin.command: tailscale up --authkey {{ tailscale_authkey }}
-  register: tailscale_up_result
-  changed_when: tailscale_up_result.rc == 0
-  failed_when: false
-  become: yes
+    - name: Connect to Tailscale network
+      ansible.builtin.command: tailscale up --authkey {{ tailscale_authkey }}
+      register: tailscale_up_result
+      changed_when: tailscale_up_result.rc == 0
+      failed_when: false
+      become: yes
 
-- name: Display Tailscale connection result
-  ansible.builtin.debug:
-    msg: "{{ 'Tailscale connected successfully.' if tailscale_up_result.rc == 0 else 'Tailscale connection failed. Error: ' + tailscale_up_result.stderr }}"
+    - name: Display Tailscale connection result
+      ansible.builtin.debug:
+        msg: "{{ 'Tailscale connected successfully.' if tailscale_up_result.rc == 0 else 'Tailscale connection failed. Error: ' + tailscale_up_result.stderr }}"
 
-- name: Check Tailscale connection status
-  ansible.builtin.command: tailscale status
-  register: tailscale_status
-  changed_when: false
-  failed_when: false
-  become: yes
+    - name: Check Tailscale connection status
+      ansible.builtin.command: tailscale status
+      register: tailscale_status
+      changed_when: false
+      failed_when: false
+      become: yes
 
-- name: Display Tailscale status
-  ansible.builtin.debug:
-    msg: "{{ tailscale_status.stdout_lines }}"
+    - name: Display Tailscale status
+      ansible.builtin.debug:
+        msg: "{{ tailscale_status.stdout_lines }}"
+  when: ansible_os_family != "Windows"
