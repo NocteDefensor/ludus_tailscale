@@ -74,7 +74,7 @@
 
     - name: Debug logout result
       debug:
-      var: logout_result
+        var: logout_result
 
     - name: Stop and disable Tailscale service (systemd)
       ansible.builtin.systemd:
