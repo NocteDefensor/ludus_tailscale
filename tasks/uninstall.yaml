@@ -69,6 +69,12 @@
       ansible.builtin.command: tailscale logout
       ignore_errors: yes
       become: yes
+      timeout: 30
+      register: logout_result
+
+    - name: Debug logout result
+      debug:
+      var: logout_result
 
     - name: Stop and disable Tailscale service (systemd)
       ansible.builtin.systemd:
