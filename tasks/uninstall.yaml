@@ -19,33 +19,11 @@
     tailscale_device_id: "{{ tailscale_status_windows.stdout | default(tailscale_status_linux.stdout, true) }}"
   when: tailscale_status_windows is success or tailscale_status_linux is success
 
-- name: Remove device from tailnet
-  uri:
-    url: "https://api.tailscale.com/api/v2/device/{{ tailscale_device_id }}"
-    method: DELETE
-    headers:
-      Authorization: "Bearer {{ tailscale_api_key }}"
-  delegate_to: localhost
-  register: result
-
-- name: Debug the result
-  debug:
-    var: result
-
 - name: Uninstall Tailscale on Windows
   block:
     - name: Set Windows-specific variables for uninstall
       set_fact:
         program_files_dir: "{{ ansible_env.ProgramFiles if (ansible_architecture in ['x86_64', 'amd64'] or ansible_env.PROCESSOR_ARCHITECTURE == 'AMD64') else ansible_env.ProgramFiles(x86) | default(ansible_env.ProgramFiles) }}"
-
-    - name: Disconnect from Tailscale network
-      win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" logout'
-      ignore_errors: yes
-
-    - name: Stop Tailscale service
-      win_service:
-        name: Tailscale
-        state: stopped
 
     - name: Uninstall Tailscale
       win_package:
@@ -83,3 +61,15 @@
         state: absent
       become: yes
   when: ansible_os_family != "Windows"
+- name: Remove device from tailnet
+  uri:
+    url: "https://api.tailscale.com/api/v2/device/{{ tailscale_device_id }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ tailscale_api_key }}"
+  delegate_to: localhost
+  register: result
+
+- name: Debug the result
+  debug:
+    var: result
