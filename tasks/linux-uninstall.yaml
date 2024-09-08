@@ -1,4 +1,13 @@
 
+- name: Print all available facts
+  ansible.builtin.debug:
+    var: ansible_facts
+- name: Set VM IP Address
+  ansible.builtin.set_fact:
+    vm_ip_address: "10.{{ range_second_octet }}.{{ vlan }}.{{ ip_last_octet }}"
+- name: Print all available facts
+  ansible.builtin.debug:
+    var: ansible_facts
 - name: Get device ID on Linux
   when: ansible_os_family != 'Windows'
   ansible.builtin.shell: |
