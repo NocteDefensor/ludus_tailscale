@@ -65,33 +65,6 @@
 
 - name: Uninstall Tailscale on Linux
   block:
-    - name: Disconnect from Tailscale network
-      ansible.builtin.command: tailscale logout
-      ignore_errors: yes
-      become: yes
-      timeout: 30
-      register: logout_result
-
-    - name: Debug logout result
-      debug:
-        var: logout_result
-
-    - name: Stop and disable Tailscale service (systemd)
-      ansible.builtin.systemd:
-        name: tailscaled
-        state: stopped
-        enabled: no
-      become: yes
-      when: ansible_service_mgr == 'systemd'
-
-    - name: Stop Tailscale service (SysV init)
-      ansible.builtin.service:
-        name: tailscaled
-        state: stopped
-        enabled: no
-      become: yes
-      when: ansible_service_mgr != 'systemd'
-
     - name: Uninstall Tailscale package
       ansible.builtin.package:
         name: tailscale
