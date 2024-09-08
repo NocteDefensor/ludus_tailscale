@@ -1,6 +1,8 @@
 # roles/tailscale_manage/tasks/windows-install.yaml
+- name: Determine system architecture for Windows
+  set_fact:
+    is_64bit: "{{ ansible_architecture in ['x86_64', 'amd64'] or ansible_env.PROCESSOR_ARCHITECTURE == 'AMD64' }}"
 - name: Install Tailscale on Windows
-  when: ansible_os_family != "Windows"
   block:
     - name: Set Windows-specific variables
       set_fact:
