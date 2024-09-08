@@ -1,8 +1,7 @@
-# roles/tailscale_manage/tasks/uninstall.yml
-
+# roles/tailscale_manage/tasks/uninstall.yaml
 - name: Get device ID on Windows
   win_shell: |
-    $status = & '{{ windows_system_drive }}\Program Files\Tailscale\tailscale.exe' status --json | ConvertFrom-Json
+    $status = & '{{ ansible_env.ProgramFiles }}\\Tailscale\\tailscale.exe' status --json | ConvertFrom-Json
     $status.Self.ID
   register: tailscale_status_windows
   ignore_errors: yes
@@ -31,8 +30,12 @@
 
 - name: Uninstall Tailscale on Windows
   block:
+    - name: Set Windows-specific variables for uninstall
+      set_fact:
+        program_files_dir: "{{ ansible_env.ProgramFiles if (ansible_architecture in ['x86_64', 'amd64'] or ansible_env.PROCESSOR_ARCHITECTURE == 'AMD64') else ansible_env.ProgramFiles(x86) | default(ansible_env.ProgramFiles) }}"
+
     - name: Disconnect from Tailscale network
-      win_command: '"{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale.exe" logout'
+      win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" logout'
       ignore_errors: yes
 
     - name: Stop Tailscale service
@@ -40,30 +43,19 @@
         name: Tailscale
         state: stopped
 
-    - name: Check if Tailscale MSI exists
-      win_stat:
-        path: '{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale-setup.msi'
-      register: tailscale_msi
-
-    - name: Download Tailscale MSI if not present
-      win_get_url:
-        url: https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi
-        dest: '{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale-setup.msi'
-      when: not tailscale_msi.stat.exists
-
     - name: Uninstall Tailscale
       win_package:
-        path: '{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale-setup.msi'
+        path: '{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi'
         state: absent
 
     - name: Remove Tailscale directory
       win_file:
-        path: '{{ windows_system_drive }}\\Program Files\\Tailscale'
+        path: '{{ program_files_dir }}\\Tailscale'
         state: absent
 
     - name: Remove Tailscale data directory
       win_file:
-        path: '{{ windows_system_drive }}\\ProgramData\\Tailscale'
+        path: '{{ ansible_env.ProgramData }}\\Tailscale'
         state: absent
   when: ansible_os_family == "Windows"
 

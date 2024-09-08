@@ -1,19 +1,19 @@
 ---
-# roles/tailscale_manage/tasks/main.yml
+# roles/tailscale_manage/tasks/main.yaml
 
 - name: Gather facts if needed
   ansible.builtin.setup:
   when: ansible_os_family is not defined
 
-- name: Set Windows system drive fact
+- name: Determine system architecture for Windows
   set_fact:
-    windows_system_drive: '{{ ansible_env.SystemDrive }}'
+    is_64bit: "{{ ansible_architecture in ['x86_64', 'amd64'] or ansible_env.PROCESSOR_ARCHITECTURE == 'AMD64' }}"
   when: ansible_os_family == "Windows"
 
 - name: Include install tasks
-  ansible.builtin.include_tasks: install.yml
+  ansible.builtin.include_tasks: install.yaml
   when: tailscale_state | default('present') == 'present'
 
 - name: Include uninstall tasks
-  ansible.builtin.include_tasks: uninstall.yml
+  ansible.builtin.include_tasks: uninstall.yaml
   when: tailscale_state | default('present') == 'absent'

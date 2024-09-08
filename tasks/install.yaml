@@ -1,17 +1,26 @@
-# roles/tailscale_manage/tasks/install.yml
-
+# roles/tailscale_manage/tasks/install.yaml
 - name: Install Tailscale on Windows
   block:
+    - name: Set Windows-specific variables
+      set_fact:
+        tailscale_msi_url: "https://pkgs.tailscale.com/stable/tailscale-setup-latest-{{ 'amd64' if is_64bit else 'x86' }}.msi"
+        program_files_dir: "{{ ansible_env.ProgramFiles if is_64bit else ansible_env.ProgramFiles(x86) | default(ansible_env.ProgramFiles) }}"
+
+    - name: Create Tailscale directory
+      win_file:
+        path: '{{ program_files_dir }}\\Tailscale'
+        state: directory
+
     - name: Download Tailscale MSI
       win_get_url:
-        url: https://pkgs.tailscale.com/stable/tailscale-setup-latest-amd64.msi
-        dest: '{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale-setup.msi'
+        url: "{{ tailscale_msi_url }}"
+        dest: '{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi'
 
     - name: Install Tailscale
       win_package:
-        path: '{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale-setup.msi'
+        path: '{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi'
         state: present
-        arguments: /quiet TS_INSTALLDIR="{{ windows_system_drive }}\\Program Files\\Tailscale"
+        arguments: /quiet TS_INSTALLDIR="{{ program_files_dir }}\\Tailscale"
 
     - name: Ensure Tailscale service is running
       win_service:
@@ -20,9 +29,9 @@
         start_mode: auto
 
     - name: Connect to Tailscale network
-      win_command: '"{{ windows_system_drive }}\\Program Files\\Tailscale\\tailscale.exe" up --authkey {{ tailscale_authkey }}'
+      win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" up --authkey {{ tailscale_authkey }}'
       args:
-        creates: '{{ windows_system_drive }}\\ProgramData\\Tailscale\\tailscaled.state'
+        creates: '{{ ansible_env.ProgramData }}\\Tailscale\\tailscaled.state'
   when: ansible_os_family == "Windows"
 
 - name: Install Tailscale on Linux
@@ -33,6 +42,12 @@
         warn: false
       become: yes
 
+    - name: Enable and start Tailscale service
+      ansible.builtin.systemd:
+        name: tailscaled
+        state: started
+        enabled: yes
+      become: yes
 
     - name: Connect to Tailscale network
       ansible.builtin.command: tailscale up --authkey {{ tailscale_authkey }}
