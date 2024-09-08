@@ -29,7 +29,7 @@
         start_mode: auto
 
     - name: Connect to Tailscale network
-      win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" up --authkey {{ tailscale_authkey }}'
+      win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" up --auth-key {{ tailscale_authkey }}'
       args:
         creates: '{{ ansible_env.ProgramData }}\\Tailscale\\tailscaled.state'
   when: ansible_os_family == "Windows"
