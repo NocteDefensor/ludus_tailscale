@@ -8,10 +8,11 @@
   ignore_errors: yes
 
 - name: Set device ID fact
-  when: ansible_os_family == "Windows"
+  when: 
+    - ansible_os_family == "Windows"
+    - tailscale_status_windows is success
   set_fact:
     tailscale_device_id: "{{ tailscale_status_windows.stdout }}"
-  when: tailscale_status_windows is success
 
 - name: Uninstall Tailscale on Windows
   when: ansible_os_family == "Windows"
