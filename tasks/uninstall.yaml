@@ -26,7 +26,11 @@
     headers:
       Authorization: "Bearer {{ tailscale_api_key }}"
   delegate_to: localhost
-  when: tailscale_device_id is defined
+  register: result
+
+- name: Debug the result
+  debug:
+    var: result
 
 - name: Uninstall Tailscale on Windows
   block:
