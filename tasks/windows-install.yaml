@@ -32,7 +32,7 @@
         start_mode: auto
 
     - name: Connect to Tailscale network
-      win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" up --auth-key {{ tailscale_authkey }}'
+      win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" up --unattended --auth-key {{ tailscale_authkey }}'
       args:
         creates: '{{ ansible_env.ProgramData }}\\Tailscale\\tailscaled.state'
     - name: Check Tailscale connection status

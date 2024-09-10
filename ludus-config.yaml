@@ -16,9 +16,9 @@ ludus:
     roles:                  
       - ludus_tailscale
     role_vars:
-	    tailscale_state: present
-	    tailscale_authkey: "tskey-auth-<REDACTED_KEY>"
-	    tailscale_api_key: "tskey-api-<REDACTED_KEY>"
+      tailscale_state: present
+      tailscale_authkey: "tskey-auth-<REDACTED_KEY>"
+      tailscale_api_key: "tskey-api-<REDACTED_KEY>"
 # Create a linux machine in the same VLAN as the domain controller
 # Remove the machine from the Tailscale network using ludus_tailscale role
   - vm_name: "{{ range_id }}-linux"
@@ -35,9 +35,9 @@ ludus:
     roles:                  
       - ludus_tailscale
     role_vars:
-	    tailscale_state: absent
-	    tailscale_authkey: "tskey-auth-<REDACTED_KEY>"
-	    tailscale_api_key: "tskey-api-<REDACTED_KEY>"
+      tailscale_state: absent
+      tailscale_authkey: "tskey-auth-<REDACTED_KEY>"
+      tailscale_api_key: "tskey-api-<REDACTED_KEY>"
 network:
   inter_vlan_default: ACCEPT
   rules:
