@@ -25,13 +25,15 @@
       set_fact:
         program_files_dir: "{{ ansible_env.ProgramFiles if is_64bit else ansible_env.ProgramFiles(x86) | default(ansible_env.ProgramFiles) }}"
         tailscale_msi_url: "https://pkgs.tailscale.com/stable/tailscale-setup-latest-{{ 'amd64' if is_64bit else 'x86' }}.msi"
-        tailscale_msi_path: '{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi'
 
     - name: Check if Tailscale MSI exists
       win_stat:
         path: "{{ tailscale_msi_path }}"
       register: tailscale_msi_stat
-
+    - name: Set MSI path
+      when: tailscale_msi_stat.stat.exists
+      set_fact:
+        tailscale_msi_path: "{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi"
     - name: Download Tailscale MSI if not present
       win_get_url:
         url: "{{ tailscale_msi_url }}"
