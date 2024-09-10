@@ -23,8 +23,8 @@
 
     - name: Set Windows-specific variables for uninstall
       set_fact:
-        tailscale_msi_url: "https://pkgs.tailscale.com/stable/tailscale-setup-latest-{{ 'amd64' if is_64bit else 'x86' }}.msi"
         program_files_dir: "{{ ansible_env.ProgramFiles if is_64bit else ansible_env.ProgramFiles(x86) | default(ansible_env.ProgramFiles) }}"
+        tailscale_msi_url: "https://pkgs.tailscale.com/stable/tailscale-setup-latest-{{ 'amd64' if is_64bit else 'x86' }}.msi"
         tailscale_msi_path: '{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi'
 
     - name: Check if Tailscale MSI exists
