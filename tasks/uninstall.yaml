@@ -14,19 +14,18 @@
   changed_when: false
   failed_when: false
 
-- name: Uninstall Tailscale on Windows
-  when: 
-    - ansible_os_family == "Windows"
-    - tailscale_windows_installed.rc == 0
-  ansible.builtin.include_tasks: windows-uninstall.yaml
-
-
 - name: Check if Tailscale is installed on Linux
   when: ansible_os_family != "Windows"
   ansible.builtin.command: which tailscale
   register: tailscale_linux_installed
   changed_when: false
   failed_when: false
+
+- name: Uninstall Tailscale on Windows
+  when: 
+    - ansible_os_family == "Windows"
+    - tailscale_windows_installed.rc == 0
+  ansible.builtin.include_tasks: windows-uninstall.yaml
 
 - name: Uninstall Tailscale on Linux
   when: 
@@ -38,5 +37,5 @@
   debug:
     msg: "Tailscale doesn't appear to be installed"
   when: 
-    - (ansible_os_family == "Windows" and not tailscale_windows_installed.exists) or
+    - (ansible_os_family == "Windows" and tailscale_windows_installed.rc != 0) or
       (ansible_os_family != "Windows" and tailscale_linux_installed.rc != 0)
