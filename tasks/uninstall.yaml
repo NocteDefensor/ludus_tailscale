@@ -6,12 +6,6 @@
   register: tailscale_service
   failed_when: false
 
-- name: Set fact for Tailscale installation status on Windows
-  when: ansible_os_family == "Windows"
-  ansible.builtin.set_fact:
-    tailscale_windows_installed:
-      rc: "{{ 0 if tailscale_service.exists else 1 }}"
-
 - name: Check if Tailscale is installed on Linux
   when: ansible_os_family != "Windows"
   ansible.builtin.command: which tailscale
@@ -22,7 +16,7 @@
 - name: Uninstall Tailscale on Windows
   when: 
     - ansible_os_family == "Windows"
-    - tailscale_windows_installed.rc == 0
+    - tailscale_service.exists | default(false) | bool
   ansible.builtin.include_tasks: windows-uninstall.yaml
 
 - name: Uninstall Tailscale on Linux
@@ -35,5 +29,10 @@
   debug:
     msg: "Tailscale doesn't appear to be installed"
   when: 
-    - (ansible_os_family == "Windows" and tailscale_windows_installed.rc != 0) or
+    - (ansible_os_family == "Windows" and not (tailscale_service.exists | default(false) | bool)) or
       (ansible_os_family != "Windows" and tailscale_linux_installed.rc != 0)
+
+- name: Debug Tailscale service status
+  debug:
+    var: tailscale_service
+  when: ansible_os_family == "Windows"
