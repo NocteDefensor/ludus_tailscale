@@ -10,6 +10,7 @@ Ansible Role for Ludus to provision or remove a device to/from a Tailnet.
 ```
 ludus ansible role add NocteDefensor.ludus_tailscale
 ```
+- If you install from this method, in your range config the role name should be "NocteDefensor.ludus_tailscale"
 ### Add from this git repo
 - Clone this repo
 ```
