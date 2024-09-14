@@ -3,7 +3,7 @@
   ansible.builtin.shell: |
     tailscale status --json | python3 -c "import sys, json; print(json.load(sys.stdin)['Self']['ID'])"
   register: tailscale_status_linux
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Set device ID fact
   when: 
@@ -21,7 +21,7 @@
         name: "tailscale"
         state: absent
       register: tailscale_uninstall_result
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Check if Tailscale is still installed
       become: true
@@ -30,7 +30,7 @@
         state: absent
       check_mode: true
       register: tailscale_check_result
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Warn user if Tailscale is still installed
       ansible.builtin.debug:
@@ -41,14 +41,14 @@
       ansible.builtin.file:
         path: /var/lib/tailscale
         state: absent
-      become: yes
+      become: true
       become_user: root
 
     - name: Remove Tailscale configuration
       ansible.builtin.file:
         path: /etc/tailscale
         state: absent
-      become: yes
+      become: true
       become_user: root
 - name: Remove device from tailnet
   uri:

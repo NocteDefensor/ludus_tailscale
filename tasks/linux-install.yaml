@@ -6,12 +6,12 @@
       ansible.builtin.package:
         name: ca-certificates
         state: present
-      become: yes
+      become: true
 
     - name: Check if wget or curl is installed
       ansible.builtin.shell: which wget || which curl
       register: download_tool
-      ignore_errors: yes
+      ignore_errors: true
       changed_when: false
 
     - name: Install wget if neither wget nor curl is available
@@ -19,7 +19,7 @@
         name: wget
         state: present
       when: download_tool.rc != 0
-      become: yes
+      become: true
 
     - name: Download Tailscale installation script
       ansible.builtin.get_url:
@@ -27,24 +27,24 @@
         dest: /tmp/tailscale_install.sh
         mode: '0700'
         validate_certs: no
-      become: yes
+      become: true
 
     - name: Run Tailscale installation script
       ansible.builtin.command: /tmp/tailscale_install.sh
-      become: yes
+      become: true
 
     - name: Remove Tailscale installation script
       ansible.builtin.file:
         path: /tmp/tailscale_install.sh
         state: absent
-      become: yes
+      become: true
 
     - name: Connect to Tailscale network
       ansible.builtin.command: tailscale up --authkey {{ tailscale_authkey }}
       register: tailscale_up_result
       changed_when: tailscale_up_result.rc == 0
       failed_when: false
-      become: yes
+      become: true
 
     - name: Display Tailscale connection result
       ansible.builtin.debug:
@@ -55,7 +55,7 @@
       register: tailscale_status
       changed_when: false
       failed_when: false
-      become: yes
+      become: true
 
     - name: Display Tailscale status
       ansible.builtin.debug:

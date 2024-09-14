@@ -16,7 +16,7 @@ galaxy_info:
         - all
     - name: Amazon
       versions:
-        - 2023
+        - '2023'
     - name: Debian
       versions:
         - all
