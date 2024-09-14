@@ -32,6 +32,11 @@
       win_stat:
         path: "{{ tailscale_msi_path }}"
       register: tailscale_msi_stat
+      
+    - name: Ensure Tailscale directory exists
+      win_file:
+        path: "{{ program_files_dir }}\\Tailscale"
+        state: directory
 
     - name: Download Tailscale MSI if not present
       win_get_url:
