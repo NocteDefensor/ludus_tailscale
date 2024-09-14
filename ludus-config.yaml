@@ -14,7 +14,7 @@ ludus:
       fqdn: acme.com
       role: primary-dc
     roles:                  
-      - ludus_tailscale
+      - ludus_tailscale # put this as it appears in `ludus ansible roles list` THIS WILL CHANGE BASED ON WHETHER YOU ADDED THE ROLE BY CLONING THE REPO OR THROUGH ANSIBLE GALAXY COMMAND
     role_vars:
       tailscale_state: present
       tailscale_authkey: "tskey-auth-<REDACTED_KEY>"
@@ -33,7 +33,7 @@ ludus:
       snapshot: false
       block_internet: false
     roles:                  
-      - ludus_tailscale
+      - ludus_tailscale # put this as it appears in `ludus ansible roles list` THIS WILL CHANGE BASED ON WHETHER YOU ADDED THE ROLE BY CLONING THE REPO OR THROUGH ANSIBLE GALAXY COMMAND
     role_vars:
       tailscale_state: absent
       tailscale_authkey: "tskey-auth-<REDACTED_KEY>"

@@ -8,7 +8,7 @@ Ansible Role for Ludus to provision or remove a device to/from a Tailnet.
 
 ### Install with ansible galaxy
 ```
-ludus ansible role add ludus_tailscale
+ludus ansible role add NocteDefensor.ludus_tailscale
 ```
 ### Add from this git repo
 - Clone this repo
