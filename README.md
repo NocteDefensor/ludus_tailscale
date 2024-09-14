@@ -27,5 +27,4 @@ ludus range deploy
 ludus range deploy -t user-defined-roles --only-roles ludus_tailscale
 ```
 ## Recognition and Contributions
-- [@jessefmoore](https://twitter.com/jessefmoore)
-- 
+- [@jessefmoore](https://twitter.com/jessefmoore) for the tremendous amount of patience and effort during multiple nights of testing.
