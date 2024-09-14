@@ -20,6 +20,7 @@ git clone https://github.com/NocteDefensor/ludus_tailscale.git
 ```
 ludus ansible role add -d ./ludus_tailscale
 ```
+## Deploy role
 - set your config like the one in the example ludus-config.yaml
   - Ensure your api key is for a user with permissions to remove devices from the tailnet.
   - ensure auth key is valid
