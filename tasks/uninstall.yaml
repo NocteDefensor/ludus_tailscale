@@ -5,6 +5,10 @@
     name: Tailscale
   register: tailscale_service
   failed_when: false
+- name: Debug Tailscale service status
+  debug:
+    var: tailscale_service
+  when: ansible_os_family == "Windows"
 
 - name: Check if Tailscale is installed on Linux
   when: ansible_os_family != "Windows"
@@ -31,8 +35,3 @@
   when: 
     - (ansible_os_family == "Windows" and not (tailscale_service.exists | default(false) | bool)) or
       (ansible_os_family != "Windows" and tailscale_linux_installed.rc != 0)
-
-- name: Debug Tailscale service status
-  debug:
-    var: tailscale_service
-  when: ansible_os_family == "Windows"
