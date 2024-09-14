@@ -5,13 +5,12 @@ Ansible Role for Ludus to provision or remove a device to/from a Tailnet.
 - Tailscale authorization key which is configured for reuse if going to be used for more then one VM.
 - Tailscale API key with permissions to remove devices.
 ## Installation Instructions
-
-### Install with ansible galaxy
+### To Install with ansible galaxy
 ```
 ludus ansible role add NocteDefensor.ludus_tailscale
 ```
 - If you install from this method, in your range config the role name should be "NocteDefensor.ludus_tailscale"
-### Add from this git repo
+### To Install from this git repo
 - Clone this repo
 ```
 git clone https://github.com/NocteDefensor/ludus_tailscale.git
