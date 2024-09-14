@@ -1,6 +1,9 @@
 # ludus_tailscale
 Ansible Role for Ludus to provision or remove a device to/from a Tailnet.
-
+## REQUIREMENTS
+- Requires Ludus 1.5.4 or greater as this version and above contain improvements in IP determination within the Dynamic Inventory steps which affect how Ludus operates in a Tailscale environment.
+- Tailscale authorization key which is configured for reuse if going to be used for more then one VM.
+- Tailscale API key with permissions to remove devices.
 ## Installation Instructions
 - Clone this repo
 ```
