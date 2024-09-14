@@ -26,7 +26,7 @@
         url: https://tailscale.com/install.sh
         dest: /tmp/tailscale_install.sh
         mode: '0700'
-        validate_certs: no
+        validate_certs: false
       become: true
 
     - name: Run Tailscale installation script
