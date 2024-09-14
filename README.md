@@ -31,7 +31,7 @@ ludus range deploy
   - Useful for deploying tailscale to existing vm's or removing tailscale from existing VM's.
   - **Hint**: can be used with "absent" as the tailscale state variable value to purge tailscale prior to destroying range.
 ```
-ludus range deploy -t user-defined-roles --only-roles ludus_tailscale
+ludus range deploy -t user-defined-roles --only-roles <ludus_tailscale| NocteDefensor.ludus_tailscale>
 ```
 ## Recognition and Contributions
 - [@jessefmoore](https://twitter.com/jessefmoore) for the tremendous amount of patience and effort during multiple nights of testing.
