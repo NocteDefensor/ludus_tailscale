@@ -1,18 +1,16 @@
 # roles/tailscale_manage/tasks/uninstall.yaml
-- name: Check if Tailscale is installed on Windows
+- name: Check if Tailscale service exists on Windows
   when: ansible_os_family == "Windows"
-  ansible.windows.win_shell: |
-    $tailscaleInstalled = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*Tailscale*" }
-    if ($tailscaleInstalled) {
-        Write-Output "Tailscale is installed"
-        exit 0
-    } else {
-        Write-Output "Tailscale is not installed"
-        exit 1
-    }
-  register: tailscale_windows_installed
-  changed_when: false
+  ansible.windows.win_service:
+    name: Tailscale
+  register: tailscale_service
   failed_when: false
+
+- name: Set fact for Tailscale installation status on Windows
+  when: ansible_os_family == "Windows"
+  ansible.builtin.set_fact:
+    tailscale_windows_installed:
+      rc: "{{ 0 if tailscale_service.exists else 1 }}"
 
 - name: Check if Tailscale is installed on Linux
   when: ansible_os_family != "Windows"
