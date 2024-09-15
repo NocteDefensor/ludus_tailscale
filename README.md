@@ -34,7 +34,7 @@ ludus range deploy
 ludus range deploy -t user-defined-roles --only-roles <ludus_tailscale| NocteDefensor.ludus_tailscale>
 ```
 ## Walkthrough.
-[@jessefmoore](https://twitter.com/jessefmore) was awesome enough to test this and also created a nice walkthrough video of deploying tailscale and removing it. You can watch it below:
+[@jessefmoore](https://twitter.com/jessefmore) was awesome enough to test this and also created a nice walkthrough video of deploying tailscale and removing it.
 [![Video Title](https://img.youtube.com/vi/8ksRU_b2rFs/0.jpg)](https://youtu.be/8ksRU_b2rFs?si=oUJMhZ2TlNVYUZfv)
 ## Recognition and Contributions
 - [@jessefmoore](https://twitter.com/jessefmoore) for the tremendous amount of patience and effort during multiple nights of testing.
