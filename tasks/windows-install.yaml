@@ -53,6 +53,18 @@
       failed_when: tailscale_ready.rc != 0
       changed_when: false
 
+    - name: Kill any running tailscaled processes
+      win_shell: |
+        $procs = Get-Process -Name tailscaled -ErrorAction SilentlyContinue
+        if ($procs) {
+          $procs | Stop-Process -Force
+          Write-Output "Killed tailscaled processes."
+        } else {
+          Write-Output "No tailscaled processes found."
+        }
+      register: tailscaled_kill
+      changed_when: "'Killed' in tailscaled_kill.stdout"
+
     - name: Connect to Tailscale network
       win_command: '"{{ program_files_dir }}\\Tailscale\\tailscale.exe" up --unattended --auth-key {{ tailscale_authkey }}{{ " --ssh" if tailscale_ssh | default(false) | bool else "" }}{{ " --accept-dns=true" if tailscale_dns | default(false) | bool else " --accept-dns=false" }}'
     - name: Check Tailscale connection status
