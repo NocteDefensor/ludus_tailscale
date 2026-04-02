@@ -23,7 +23,7 @@
       win_package:
         path: '{{ program_files_dir }}\\Tailscale\\tailscale-setup.msi'
         state: present
-        arguments: /qn TS_INSTALLDIR="{{ program_files_dir }}\\Tailscale" TS_NOLAUNCH="true"
+        arguments: /qn TS_INSTALLDIR="{{ program_files_dir }}\\Tailscale" TS_NOLAUNCH="true" TS_ONBOARDING_FLOW="hide"
 
     - name: Stop Tailscale service to ensure clean state
       win_service:
